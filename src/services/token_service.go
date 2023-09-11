@@ -46,11 +46,6 @@ func (ts *TokenService) GenerateToken(td *dto.TokenDTO) (*dto.TokenDetail, error
 
 	refreshTokenClaims := jwt.MapClaims{}
 	refreshTokenClaims[constants.UserIdKey] = td.UserId
-	refreshTokenClaims[constants.FullNameKey] = td.FullName
-	refreshTokenClaims[constants.UserNameKey] = td.Username
-	refreshTokenClaims[constants.PhoneKey] = td.Phone
-	refreshTokenClaims[constants.EmailKey] = td.Email
-	refreshTokenClaims[constants.RolesKey] = td.Roles
 	refreshTokenClaims[constants.ExpKey] = tokenDetail.AccessTokenExpireTime
 
 	rt := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshTokenClaims)

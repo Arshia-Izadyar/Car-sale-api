@@ -21,7 +21,7 @@ type BaseModel struct {
 func (b *BaseModel) BeforeCreate(tx *gorm.DB) error {
 	value := tx.Statement.Context.Value(constants.UserIdKey)
 	var UserId = -1
-	if value != "" {
+	if value != nil {
 		UserId = int(value.(float64))
 	}
 	b.CreatedBy = UserId

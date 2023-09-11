@@ -5,6 +5,7 @@ import (
 	"github.com/Arshia-Izadyar/Car-sale-api/src/config"
 	"github.com/Arshia-Izadyar/Car-sale-api/src/data/cache"
 	"github.com/Arshia-Izadyar/Car-sale-api/src/data/db"
+	"github.com/Arshia-Izadyar/Car-sale-api/src/data/db/migrations"
 	"github.com/Arshia-Izadyar/Car-sale-api/src/pkg/logging"
 )
 
@@ -24,6 +25,8 @@ func main() {
 
 	}
 	defer cache.CloseRedis()
+
+	migrations.Up_1()
 
 	api.Init(cfg)
 

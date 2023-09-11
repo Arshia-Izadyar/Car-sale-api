@@ -58,7 +58,7 @@ func (us *UserService) existsByEmail(email string) (bool, error) {
 
 func (us *UserService) existsByPhone(phone string) (bool, error) {
 	var exists bool
-	err := us.Db.Model(&models.User{}).Select("count(*) > 1").Where("phone_number = ?", phone).Find(&exists).Error
+	err := us.Db.Model(&models.User{}).Select("count(*) > 0").Where("phone_number = ?", phone).Find(&exists).Error
 	if err != nil {
 		return false, err
 	}
@@ -135,7 +135,7 @@ func (us *UserService) RegisterByUsername(req *dto.RegisterUserByUsername) error
 }
 
 func (us *UserService) RegisterLoginByPhone(req *dto.RegisterLoginByPhone) (*dto.TokenDetail, error) {
-	err := us.Otp.ValidateOTP(req.Otp, req.Otp)
+	err := us.Otp.ValidateOTP(req.Phone, req.Otp)
 	if err != nil {
 		return nil, err
 	}
@@ -179,7 +179,7 @@ func (us *UserService) RegisterLoginByPhone(req *dto.RegisterLoginByPhone) (*dto
 			return nil, err
 		}
 		tx := us.Db.Begin()
-		err = tx.Create(user).Error
+		err = tx.Create(&user).Error
 		if err != nil {
 			tx.Rollback()
 			return nil, err

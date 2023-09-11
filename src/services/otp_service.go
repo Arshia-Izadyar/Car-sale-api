@@ -30,19 +30,19 @@ func NewOTPService(cfg *config.Config) *OtpService {
 
 func (os *OtpService) SetOtp(mobileNumber, otp string) *service_errors.ServiceError {
 	key := fmt.Sprintf("%s:%s", constants.DefaultRedisKey, mobileNumber)
-	val := dto.OtpDTO{
-		Value: key,
+	val := &dto.OtpDTO{
+		Value: otp,
 		Used:  false,
 	}
 	result, err := cache.Get[dto.OtpDTO](key, os.Redis)
-	if err == nil && result.Used {
-		return &service_errors.ServiceError{EndUserMessage: service_errors.OtpUsed}
-	} else if err == nil && !result.Used {
-		return &service_errors.ServiceError{EndUserMessage: service_errors.OtpExists}
+	if err == nil && !result.Used {
+		return &service_errors.ServiceError{Err: err, EndUserMessage: service_errors.OtpExists}
+	} else if err == nil && result.Used {
+		return &service_errors.ServiceError{Err: err, EndUserMessage: service_errors.OtpUsed}
 	}
-	err = cache.Set[dto.OtpDTO](key, val, os.Cfg.Otp.ExpireTime, os.Redis)
+	err = cache.Set(key, val, os.Cfg.Otp.ExpireTime, os.Redis)
 	if err != nil {
-		return &service_errors.ServiceError{EndUserMessage: "cant set otp try again later", Err: err}
+		return &service_errors.ServiceError{Err: err, EndUserMessage: "cant get btw"}
 	}
 	return nil
 }
@@ -59,7 +59,7 @@ func (os *OtpService) ValidateOTP(mobileNumber, otp string) error {
 		return &service_errors.ServiceError{EndUserMessage: service_errors.OtpInvalid}
 	} else if !res.Used && res.Value == otp {
 		res.Used = true
-		err = cache.Set[dto.OtpDTO](key, *res, os.Cfg.Otp.ExpireTime, os.Redis)
+		err = cache.Set[dto.OtpDTO](key, res, os.Cfg.Otp.ExpireTime, os.Redis)
 		if err != nil {
 			return err
 		}

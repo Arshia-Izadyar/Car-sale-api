@@ -25,6 +25,7 @@ func InitRedis(cfg *config.Config) error {
 		PoolSize:     cfg.Redis.PoolSize,
 	})
 	_, err := redisClient.Ping(context.Background()).Result()
+	fmt.Println(redisClient.Options().Addr)
 	if err != nil {
 		return err
 	}
@@ -45,26 +46,24 @@ func CloseRedis() {
 }
 
 func Set[T any](key string, value T, duration time.Duration, c *redis.Client) error {
-	v, err := json.Marshal(&value)
+	v, err := json.Marshal(value)
 	if err != nil {
 		return err
 	}
-	// _, err = c.Set(context.Background(), key, v, duration).Result()
-	// if err != nil {
-	// 	return err
-	// }
-	c.Set(context.Background(), key, v, duration)
+	ctx := context.Background()
+	c.Set(ctx, key, v, duration*time.Second)
 	return nil
 }
 
-func Get[T any](key string, c *redis.Client) (*T, error) {
-	var dest = new(T)
-	res, err := c.Get(context.Background(), key).Result()
+func Get[T any](key string, c *redis.Client) (T, error) {
+	var dest T = *new(T)
+	ctx := context.Background()
+
+	v, err := c.Get(ctx, key).Result()
 	if err != nil {
 		return dest, err
 	}
-
-	err = json.Unmarshal([]byte(res), &dest)
+	err = json.Unmarshal([]byte(v), &dest)
 	if err != nil {
 		return dest, err
 	}
