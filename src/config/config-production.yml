@@ -14,7 +14,7 @@ postgres:
   port: 5432
   user: arshia
   password: a123
-  dbName: car_sale
+  dbName: car_sale2
   sslMode: disable
   maxIdleConns: 15
   maxOpenConns: 100

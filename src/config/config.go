@@ -15,6 +15,7 @@ type Config struct {
 	Otp      OtpConfig
 	Logger   LoggerConfig
 	Jwt      JwtConfig
+	Password Password
 }
 
 type ServerConfig struct {
@@ -60,6 +61,15 @@ type JwtConfig struct {
 	RefreshSecret              string
 	AccessTokenExpireDuration  time.Duration
 	RefreshTokenExpireDuration time.Duration
+}
+
+type Password struct {
+	IncludeChars     bool
+	IncludeDigits    bool
+	MinLength        int
+	MaxLength        int
+	IncludeUppercase bool
+	IncludeLowercase bool
 }
 
 type OtpConfig struct {
