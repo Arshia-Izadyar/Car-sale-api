@@ -32,6 +32,9 @@ func registerRoutes(r *gin.Engine, cfg *config.Config) {
 	{
 		users := v1.Group("/users")
 		router.UserRouter(users, cfg)
+
+		propertyCategory := v1.Group("/property-category")
+		router.PropertyCategoryRouter(propertyCategory, cfg)
 	}
 }
 
