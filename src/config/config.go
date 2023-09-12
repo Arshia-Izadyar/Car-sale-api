@@ -16,6 +16,7 @@ type Config struct {
 	Logger   LoggerConfig
 	Jwt      JwtConfig
 	Password Password
+	Cors     CorsConfig
 }
 
 type ServerConfig struct {
@@ -70,6 +71,9 @@ type Password struct {
 	MaxLength        int
 	IncludeUppercase bool
 	IncludeLowercase bool
+}
+type CorsConfig struct {
+	AllowOrigins string
 }
 
 type OtpConfig struct {

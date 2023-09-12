@@ -1,0 +1,351 @@
+definitions:
+  dto.CreatePropertyCategoryRequest:
+    properties:
+      icon:
+        type: string
+      name:
+        type: string
+    required:
+    - icon
+    - name
+    type: object
+  dto.GetOtpRequest:
+    properties:
+      mobile_number:
+        maxLength: 11
+        minLength: 11
+        type: string
+    required:
+    - mobile_number
+    type: object
+  dto.LoginByUsername:
+    properties:
+      password:
+        minLength: 3
+        type: string
+      username:
+        minLength: 3
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  dto.PropertyCategoryResponse:
+    properties:
+      icon:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  dto.RegisterLoginByPhone:
+    properties:
+      otp:
+        type: string
+      phone:
+        maxLength: 11
+        minLength: 11
+        type: string
+    required:
+    - otp
+    - phone
+    type: object
+  dto.RegisterUserByUsername:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - first_name
+    - username
+    type: object
+  dto.UpdatePropertyCategoryRequest:
+    properties:
+      name:
+        type: string
+    type: object
+  helper.Response:
+    properties:
+      error: {}
+      result: {}
+      result_code:
+        type: integer
+      success:
+        type: boolean
+      validation_error:
+        items:
+          $ref: '#/definitions/validators.ValidationError'
+        type: array
+    type: object
+  validators.ValidationError:
+    properties:
+      message:
+        type: string
+      property:
+        type: string
+      tag:
+        type: string
+      value:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /v1/property-category/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a PropertyCategory
+      parameters:
+      - description: Create a PropertyCategory
+        in: body
+        name: Request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreatePropertyCategoryRequest'
+      responses:
+        "201":
+          description: PropertyCategory response
+          schema:
+            allOf:
+            - $ref: '#/definitions/helper.Response'
+            - properties:
+                result:
+                  $ref: '#/definitions/dto.PropertyCategoryResponse'
+              type: object
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/helper.Response'
+      security:
+      - AuthBearer: []
+      summary: Create a PropertyCategory
+      tags:
+      - PropertyCategory
+  /v1/property-category/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Get a PropertyCategory
+      parameters:
+      - description: Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: PropertyCategory response
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/helper.Response'
+      security:
+      - AuthBearer: []
+      summary: Get a PropertyCategory
+      tags:
+      - PropertyCategory
+  /v1/property-category/get/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Delete a PropertyCategory
+      parameters:
+      - description: Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: response
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/helper.Response'
+      security:
+      - AuthBearer: []
+      summary: Delete a PropertyCategory
+      tags:
+      - PropertyCategory
+  /v1/property-category/update/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update a PropertyCategory
+      parameters:
+      - description: Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update a PropertyCategory
+        in: body
+        name: Request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdatePropertyCategoryRequest'
+      responses:
+        "200":
+          description: PropertyCategory response
+          schema:
+            allOf:
+            - $ref: '#/definitions/helper.Response'
+            - properties:
+                result:
+                  $ref: '#/definitions/dto.PropertyCategoryResponse'
+              type: object
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/helper.Response'
+      security:
+      - AuthBearer: []
+      summary: Update a PropertyCategory
+      tags:
+      - PropertyCategory
+  /v1/users/login/phone:
+    post:
+      consumes:
+      - application/json
+      description: RegisterLoginByPhone
+      parameters:
+      - description: Create a RegisterLoginByPhone
+        in: body
+        name: Request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterLoginByPhone'
+      responses:
+        "201":
+          description: RegisterLoginByPhone response
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/helper.Response'
+      summary: RegisterLoginByPhone
+      tags:
+      - Users
+  /v1/users/login/username:
+    post:
+      consumes:
+      - application/json
+      description: LoginByUsername
+      parameters:
+      - description: Create a LoginByUsername
+        in: body
+        name: Request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginByUsername'
+      responses:
+        "201":
+          description: LoginByUsername response
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/helper.Response'
+      summary: LoginByUsername
+      tags:
+      - Users
+  /v1/users/register/phone:
+    post:
+      consumes:
+      - application/json
+      description: RegisterLoginByPhone
+      parameters:
+      - description: Create a RegisterLoginByPhone
+        in: body
+        name: Request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterLoginByPhone'
+      responses:
+        "201":
+          description: RegisterLoginByPhone response
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/helper.Response'
+      summary: RegisterLoginByPhone
+      tags:
+      - Users
+  /v1/users/register/username:
+    post:
+      consumes:
+      - application/json
+      description: RegisterByUsername
+      parameters:
+      - description: Create a RegisterByUsername
+        in: body
+        name: Request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterUserByUsername'
+      responses:
+        "201":
+          description: RegisterByUsername response
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/helper.Response'
+      summary: RegisterByUsername
+      tags:
+      - Users
+  /v1/users/send-otp:
+    post:
+      consumes:
+      - application/json
+      description: SendOtp
+      parameters:
+      - description: Create a GetOtpRequest
+        in: body
+        name: Request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.GetOtpRequest'
+      responses:
+        "201":
+          description: SendOtp response
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/helper.Response'
+      summary: SendOtp
+      tags:
+      - Users
+swagger: "2.0"
