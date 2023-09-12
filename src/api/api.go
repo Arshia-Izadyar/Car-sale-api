@@ -44,6 +44,18 @@ func registerRoutes(r *gin.Engine, cfg *config.Config) {
 		propertyCategory := v1.Group("/property-category", middleware.Authentication(cfg))
 		router.PropertyCategoryRouter(propertyCategory, cfg)
 
+		year := v1.Group("/year", middleware.Authentication(cfg))
+		router.PersianYearRouter(year, cfg)
+
+		city := v1.Group("/city", middleware.Authentication(cfg))
+		router.CityRouter(city, cfg)
+
+		country := v1.Group("/country", middleware.Authentication(cfg))
+		router.CountryRouter(country, cfg)
+
+		color := v1.Group("/color", middleware.Authentication(cfg))
+		router.ColorRouter(color, cfg)
+
 		property := v1.Group("/property", middleware.Authentication(cfg))
 		router.PropertyRouter(property, cfg)
 	}

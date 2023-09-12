@@ -41,14 +41,3 @@ type PropertyResponse struct {
 	Unit        string                   `json:"unit,omitempty"`
 	Category    PropertyCategoryResponse `json:"category,omitempty"`
 }
-
-/*
-"description":"",
-"name":"",
-"icon":"",
-"unit":"",
-"dataType":"",
-"categoryId":""
-
-
-*/

@@ -30,6 +30,11 @@ func createTable(database *gorm.DB) {
 	tables = addNewTable(database, &models.PropertyCategory{}, tables)
 	tables = addNewTable(database, &models.Property{}, tables)
 
+	tables = addNewTable(database, &models.Country{}, tables)
+	tables = addNewTable(database, &models.City{}, tables)
+	tables = addNewTable(database, &models.PersianYear{}, tables)
+	tables = addNewTable(database, &models.Color{}, tables)
+
 	err := database.Migrator().CreateTable(tables...)
 	if err != nil {
 		logger.Error(err, logging.Postgres, logging.Insert, "cant add tables", nil)
