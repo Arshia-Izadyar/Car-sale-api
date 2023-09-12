@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -12,7 +11,6 @@ import (
 	"github.com/Arshia-Izadyar/Car-sale-api/src/pkg/service_errors"
 	"github.com/Arshia-Izadyar/Car-sale-api/src/services"
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v4"
 )
 
 func Authentication(cfg *config.Config) gin.HandlerFunc {
@@ -28,12 +26,25 @@ func Authentication(cfg *config.Config) gin.HandlerFunc {
 			token := strings.Split(key, " ")[1]
 			claimMap, err = tokenService.GetClaims(token)
 			if err != nil {
-				fmt.Println(err)
-				switch err.(*jwt.ValidationError).Errors {
-				case jwt.ValidationErrorExpired:
-					err = &service_errors.ServiceError{EndUserMessage: service_errors.TokenExpired}
-				default:
-					err = &service_errors.ServiceError{EndUserMessage: service_errors.TokenInvalid}
+				if err != nil {
+					e, isServiceError := err.(*service_errors.ServiceError)
+					if isServiceError && e.EndUserMessage == service_errors.TokenExpired {
+						ctx.AbortWithStatusJSON(http.StatusUnauthorized,
+							helper.GenerateBaseResponseWithError(
+								service_errors.TokenExpired,
+								false,
+								int(helper.AuthError),
+								service_errors.TokenExpired))
+						return
+					} else {
+						ctx.AbortWithStatusJSON(http.StatusUnauthorized,
+							helper.GenerateBaseResponseWithError(
+								service_errors.TokenInvalid,
+								false,
+								int(helper.AuthError),
+								service_errors.TokenInvalid))
+						return
+					}
 				}
 			}
 		}
