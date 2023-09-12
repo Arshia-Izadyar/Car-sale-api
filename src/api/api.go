@@ -58,6 +58,9 @@ func registerRoutes(r *gin.Engine, cfg *config.Config) {
 
 		property := v1.Group("/property", middleware.Authentication(cfg))
 		router.PropertyRouter(property, cfg)
+
+		file := v1.Group("/file", middleware.Authentication(cfg))
+		router.FileRouter(file, cfg)
 	}
 }
 

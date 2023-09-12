@@ -1,5 +1,7 @@
 package dto
 
+import "mime/multipart"
+
 type CreateColorRequest struct {
 	Name string `json:"name"`
 	Hex  string `json:"hex"`
@@ -58,4 +60,32 @@ type CityResponse struct {
 	Id      int             `json:"id"`
 	Name    string          `json:"name"`
 	Country CountryResponse `json:"country"`
+}
+
+type FileFormRequest struct {
+	File *multipart.FileHeader `form:"file" swaggerignore:"true"`
+}
+
+type UploadFileRequest struct {
+	FileFormRequest
+	Description string `form:"description" binding:"required"`
+}
+
+type CreateFileRequest struct {
+	Name        string `json:"name"`
+	Directory   string `json:"directory"`
+	Description string `json:"description"`
+	MineType    string `json:"mineType"`
+}
+
+type UpdateFileRequest struct {
+	Description string `json:"description"`
+}
+
+type FileResponse struct {
+	Id          int    `json:"id"`
+	Name        string `json:"name"`
+	Directory   string `json:"directory"`
+	Description string `json:"description"`
+	MineType    string `json:"mineType"`
 }

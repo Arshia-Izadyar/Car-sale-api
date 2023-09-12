@@ -37,3 +37,11 @@ func PersianYearRouter(r *gin.RouterGroup, cfg *config.Config) {
 	r.PUT("/update/:id", h.UpdatePersianYear)
 	r.DELETE("/delete/:id", h.DeletePersianYear)
 }
+
+func FileRouter(r *gin.RouterGroup, cfg *config.Config) {
+	h := handler.NewFileHandler(cfg)
+	r.POST("/create", h.CreateFile)
+	r.GET("/get/:id", h.GetFileById)
+	r.PUT("/update/:id", h.UpdateFile)
+	r.DELETE("/delete/:id", h.DeleteFile)
+}

@@ -24,3 +24,11 @@ type Color struct {
 	Name string `gorm:"type:string;size:30;not null;unique"`
 	Hex  string `gorm:"size:7;type:string;not null"`
 }
+
+type File struct {
+	BaseModel
+	Name        string `gorm:"size:100;type:string;not null"`
+	Directory   string `gorm:"size:100;type:string;not null"`
+	Description string `gorm:"size:500;type:string;null"`
+	MineType    string `gorm:"size:20;type:string;not null"`
+}
