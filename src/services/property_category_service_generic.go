@@ -5,7 +5,9 @@ import (
 
 	"github.com/Arshia-Izadyar/Car-sale-api/src/api/dto"
 	"github.com/Arshia-Izadyar/Car-sale-api/src/config"
+	"github.com/Arshia-Izadyar/Car-sale-api/src/data/db"
 	"github.com/Arshia-Izadyar/Car-sale-api/src/data/models"
+	"github.com/Arshia-Izadyar/Car-sale-api/src/pkg/logging"
 )
 
 type GenericPropertyCategoryService struct {
@@ -13,9 +15,12 @@ type GenericPropertyCategoryService struct {
 }
 
 func NewGenericPropertyCategoryService(cfg *config.Config) *GenericPropertyCategoryService {
-	base := NewBaseService[models.PropertyCategory, dto.UpdatePropertyCategoryRequest, dto.CreatePropertyCategoryRequest, dto.PropertyCategoryResponse](cfg)
 	return &GenericPropertyCategoryService{
-		base: base,
+		base: &BaseService[models.PropertyCategory, dto.UpdatePropertyCategoryRequest, dto.CreatePropertyCategoryRequest, dto.PropertyCategoryResponse]{
+			Db:       db.GetDB(),
+			Logger:   logging.NewLogger(cfg),
+			Preloads: []Preload{{Name: "Properties"}},
+		},
 	}
 }
 

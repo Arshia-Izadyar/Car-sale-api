@@ -47,7 +47,7 @@ func GetPreload(db *gorm.DB, preloads []Preload) *gorm.DB {
 func (bs *BaseService[T, Tu, Tc, Tr]) GetById(ctx context.Context, id int) (*Tr, error) {
 	model := new(T)
 	db := GetPreload(bs.Db, bs.Preloads)
-	err := db.Model(&models.PropertyCategory{}).Where("id = ?", id).First(&model).Error
+	err := db.Model(&model).Where("id = ?", id).First(&model).Error
 	if err != nil {
 		bs.Logger.Error(err, logging.Postgres, logging.Get, "cant get property category", nil)
 		return nil, err

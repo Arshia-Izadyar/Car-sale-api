@@ -46,7 +46,7 @@ func (ts *TokenService) GenerateToken(td *dto.TokenDTO) (*dto.TokenDetail, error
 
 	refreshTokenClaims := jwt.MapClaims{}
 	refreshTokenClaims[constants.UserIdKey] = td.UserId
-	refreshTokenClaims[constants.ExpKey] = tokenDetail.AccessTokenExpireTime
+	refreshTokenClaims[constants.ExpKey] = tokenDetail.RefreshTokenExpireTime
 
 	rt := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshTokenClaims)
 	refreshToken, err := rt.SignedString([]byte(ts.Cfg.Jwt.RefreshSecret))
@@ -67,6 +67,15 @@ func (ts *TokenService) ValidateToken(token string) (*jwt.Token, error) {
 	})
 	if err != nil {
 		return nil, err
+	}
+	if claims, ok := tk.Claims.(jwt.MapClaims); ok && tk.Valid {
+		expirationTime := time.Unix(int64(claims[constants.ExpKey].(float64)), 0)
+		currentTime := time.Now()
+
+		if currentTime.After(expirationTime) {
+			// Token has expired
+			return nil, &service_errors.ServiceError{EndUserMessage: service_errors.TokenExpired}
+		}
 	}
 	return tk, nil
 }
