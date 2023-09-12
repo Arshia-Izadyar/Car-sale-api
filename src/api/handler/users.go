@@ -21,6 +21,16 @@ func NewUserHandler(cfg *config.Config) *UserHandler {
 	}
 }
 
+// SendOtp godoc
+// @Summary SendOtp
+// @Description SendOtp
+// @Tags Users
+// @Accept json
+// @produces json
+// @Param Request body dto.GetOtpRequest true "Create a GetOtpRequest"
+// @Success 201 {object} helper.Response "SendOtp response"
+// @Failure 400 {object} helper.Response "Bad request"
+// @Router /v1/users/send-otp [post]
 func (uh *UserHandler) SendOtp(ctx *gin.Context) {
 	req := dto.GetOtpRequest{}
 	err := ctx.ShouldBindJSON(&req)
@@ -30,12 +40,23 @@ func (uh *UserHandler) SendOtp(ctx *gin.Context) {
 	}
 	err = uh.service.SendOtp(&req)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, helper.GenerateBaseResponseWithError(nil, false, int(helper.InternalError), err))
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, helper.GenerateBaseResponseWithError(nil, false, int(helper.InternalError), err.Error()))
 		return
 	}
 	ctx.JSON(http.StatusCreated, helper.GenerateBaseResponse(gin.H{"Status": "Sent!"}, int(helper.Success), true))
 }
 
+// RegisterLoginByPhone godoc
+// @Summary RegisterLoginByPhone
+// @Description RegisterLoginByPhone
+// @Tags Users
+// @Accept json
+// @produces json
+// @Param Request body dto.RegisterLoginByPhone true "Create a RegisterLoginByPhone"
+// @Success 201 {object} helper.Response "RegisterLoginByPhone response"
+// @Failure 400 {object} helper.Response "Bad request"
+// @Router /v1/users/register/phone [post]
+// @Router /v1/users/login/phone [post]
 func (uh *UserHandler) RegisterLoginByPhone(ctx *gin.Context) {
 	req := dto.RegisterLoginByPhone{}
 	err := ctx.ShouldBindJSON(&req)
@@ -45,13 +66,23 @@ func (uh *UserHandler) RegisterLoginByPhone(ctx *gin.Context) {
 	}
 	tk, err := uh.service.RegisterLoginByPhone(&req)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, helper.GenerateBaseResponseWithError(nil, false, int(helper.InternalError), err))
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, helper.GenerateBaseResponseWithError(nil, false, int(helper.InternalError), err.Error()))
 		return
 	}
 	ctx.JSON(http.StatusCreated, helper.GenerateBaseResponse(tk, int(helper.Success), true))
 
 }
 
+// RegisterByUsername godoc
+// @Summary RegisterByUsername
+// @Description RegisterByUsername
+// @Tags Users
+// @Accept json
+// @produces json
+// @Param Request body dto.RegisterUserByUsername true "Create a RegisterByUsername"
+// @Success 201 {object} helper.Response "RegisterByUsername response"
+// @Failure 400 {object} helper.Response "Bad request"
+// @Router /v1/users/register/username [post]
 func (us *UserHandler) RegisterByUsername(ctx *gin.Context) {
 	req := dto.RegisterUserByUsername{}
 	err := ctx.ShouldBindJSON(&req)
@@ -62,13 +93,23 @@ func (us *UserHandler) RegisterByUsername(ctx *gin.Context) {
 	}
 	err = us.service.RegisterByUsername(&req)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, helper.GenerateBaseResponseWithError(nil, false, int(helper.InternalError), err))
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, helper.GenerateBaseResponseWithError(nil, false, int(helper.InternalError), err.Error()))
 		return
 	}
 	ctx.JSON(http.StatusCreated, helper.GenerateBaseResponse(gin.H{"Status": "user created please login"}, int(helper.Success), true))
 
 }
 
+// LoginByUsername godoc
+// @Summary LoginByUsername
+// @Description LoginByUsername
+// @Tags Users
+// @Accept json
+// @produces json
+// @Param Request body dto.LoginByUsername true "Create a LoginByUsername"
+// @Success 201 {object} helper.Response "LoginByUsername response"
+// @Failure 400 {object} helper.Response "Bad request"
+// @Router /v1/users/login/username [post]
 func (us *UserHandler) LoginByUsername(ctx *gin.Context) {
 	req := dto.LoginByUsername{}
 	err := ctx.ShouldBind(&req)
@@ -78,7 +119,7 @@ func (us *UserHandler) LoginByUsername(ctx *gin.Context) {
 	}
 	res, err := us.service.LoginByUsername(&req)
 	if err != nil {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, helper.GenerateBaseResponseWithError(nil, false, int(helper.InternalError), err))
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, helper.GenerateBaseResponseWithError(nil, false, int(helper.InternalError), err.Error()))
 		return
 	}
 	ctx.JSON(http.StatusCreated, helper.GenerateBaseResponse(res, int(helper.Success), true))

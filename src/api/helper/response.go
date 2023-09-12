@@ -3,22 +3,26 @@ package helper
 import "github.com/Arshia-Izadyar/Car-sale-api/src/api/validators"
 
 type Response struct {
-	Err              error
-	Result           interface{}
-	StatusCode       int
-	Success          bool
-	ValidationErrors *[]validators.ValidationError
+	Result           any                           `json:"result"`
+	Success          bool                          `json:"success"`
+	ResultCode       int                           `json:"result_code"`
+	ValidationErrors *[]validators.ValidationError `json:"validation_error"`
+	Error            any                           `json:"error"`
 }
 
-func GenerateBaseResponse(r interface{}, c int, s bool) *Response {
-	return &Response{Result: r, StatusCode: c, Success: s}
-}
-func GenerateBaseResponseWithError(result any, success bool, resultCode int, err error) *Response {
+func GenerateBaseResponse(result any, resultCode int, success bool) *Response {
 	return &Response{
 		Result:     result,
 		Success:    success,
-		StatusCode: resultCode,
-		Err:        err,
+		ResultCode: resultCode,
+	}
+}
+func GenerateBaseResponseWithError(result any, success bool, resultCode int, err string) *Response {
+	return &Response{
+		Result:     result,
+		Success:    success,
+		ResultCode: resultCode,
+		Error:      err,
 	}
 }
 
@@ -27,7 +31,7 @@ func GenerateBaseResponseWithValidationError(result any, success bool, resultCod
 	return &Response{
 		Result:           result,
 		Success:          success,
-		StatusCode:       resultCode,
+		ResultCode:       resultCode,
 		ValidationErrors: ve,
 	}
 }
