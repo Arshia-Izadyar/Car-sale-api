@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -27,6 +28,7 @@ func Authentication(cfg *config.Config) gin.HandlerFunc {
 			token := strings.Split(key, " ")[1]
 			claimMap, err = tokenService.GetClaims(token)
 			if err != nil {
+				fmt.Println(err)
 				switch err.(*jwt.ValidationError).Errors {
 				case jwt.ValidationErrorExpired:
 					err = &service_errors.ServiceError{EndUserMessage: service_errors.TokenExpired}
@@ -36,7 +38,7 @@ func Authentication(cfg *config.Config) gin.HandlerFunc {
 			}
 		}
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusUnauthorized, helper.GenerateBaseResponseWithError(nil, false, int(helper.AuthError), err))
+			ctx.AbortWithStatusJSON(http.StatusUnauthorized, helper.GenerateBaseResponseWithError(nil, false, int(helper.AuthError), err.Error()))
 			return
 		}
 		ctx.Set(constants.UserIdKey, claimMap[constants.UserIdKey])
@@ -54,12 +56,12 @@ func Authentication(cfg *config.Config) gin.HandlerFunc {
 func Authorization(validRoles []string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		if len(ctx.Keys) == 0 {
-			ctx.AbortWithStatusJSON(http.StatusForbidden, helper.GenerateBaseResponseWithError(nil, false, int(helper.AuthError), errors.New("no token provided")))
+			ctx.AbortWithStatusJSON(http.StatusForbidden, helper.GenerateBaseResponseWithError(nil, false, int(helper.AuthError), errors.New("no token provided").Error()))
 			return
 		}
 		rolesV, ok := ctx.Keys[constants.RolesKey]
 		if !ok {
-			ctx.AbortWithStatusJSON(http.StatusForbidden, helper.GenerateBaseResponseWithError(nil, false, int(helper.AuthError), errors.New("no roles provided")))
+			ctx.AbortWithStatusJSON(http.StatusForbidden, helper.GenerateBaseResponseWithError(nil, false, int(helper.AuthError), errors.New("no roles provided").Error()))
 			return
 		}
 		roles := rolesV.([]interface{})
@@ -69,7 +71,7 @@ func Authorization(validRoles []string) gin.HandlerFunc {
 		}
 		for _, item := range validRoles {
 			if _, ok := val[item]; !ok {
-				ctx.AbortWithStatusJSON(http.StatusForbidden, helper.GenerateBaseResponseWithError(nil, false, int(helper.AuthError), errors.New("do not have necessary role ")))
+				ctx.AbortWithStatusJSON(http.StatusForbidden, helper.GenerateBaseResponseWithError(nil, false, int(helper.AuthError), errors.New("do not have necessary role ").Error()))
 				return
 			}
 		}

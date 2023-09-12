@@ -14,7 +14,7 @@ func Limiter() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		err := tollbooth.LimitByRequest(lmt, ctx.Writer, ctx.Request)
 		if err != nil {
-			ctx.AbortWithStatusJSON(http.StatusTooManyRequests, helper.GenerateBaseResponseWithError(nil, false, int(helper.LimiterError), errors.New("you sent too many request please cool down a little")))
+			ctx.AbortWithStatusJSON(http.StatusTooManyRequests, helper.GenerateBaseResponseWithError(nil, false, int(helper.LimiterError), errors.New("you sent too many request please cool down a little").Error()))
 			return
 		}
 		ctx.Next()
