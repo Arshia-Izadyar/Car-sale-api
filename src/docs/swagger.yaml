@@ -9,6 +9,26 @@ definitions:
     - icon
     - name
     type: object
+  dto.CreatePropertyRequest:
+    properties:
+      categoryId:
+        type: integer
+      dataType:
+        type: string
+      description:
+        type: string
+      icon:
+        type: string
+      name:
+        type: string
+      unit:
+        type: string
+    required:
+    - categoryId
+    - dataType
+    - icon
+    - name
+    type: object
   dto.GetOtpRequest:
     properties:
       mobile_number:
@@ -37,6 +57,23 @@ definitions:
       id:
         type: integer
       name:
+        type: string
+    type: object
+  dto.PropertyResponse:
+    properties:
+      category:
+        $ref: '#/definitions/dto.PropertyCategoryResponse'
+      dataType:
+        type: string
+      description:
+        type: string
+      icon:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      unit:
         type: string
     type: object
   dto.RegisterLoginByPhone:
@@ -70,6 +107,17 @@ definitions:
   dto.UpdatePropertyCategoryRequest:
     properties:
       name:
+        type: string
+    type: object
+  dto.UpdatePropertyRequest:
+    properties:
+      dataType:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+      unit:
         type: string
     type: object
   helper.Response:
@@ -134,7 +182,7 @@ paths:
     delete:
       consumes:
       - application/json
-      description: Get a PropertyCategory
+      description: Get a Property
       parameters:
       - description: Id
         in: path
@@ -228,6 +276,135 @@ paths:
       summary: Update a PropertyCategory
       tags:
       - PropertyCategory
+  /v1/property/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a Property
+      parameters:
+      - description: Create a Property
+        in: body
+        name: Request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreatePropertyRequest'
+      responses:
+        "201":
+          description: Property response
+          schema:
+            allOf:
+            - $ref: '#/definitions/helper.Response'
+            - properties:
+                result:
+                  $ref: '#/definitions/dto.PropertyResponse'
+              type: object
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/helper.Response'
+      security:
+      - AuthBearer: []
+      summary: Create a Property
+      tags:
+      - Property
+  /v1/property/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Get a Property
+      parameters:
+      - description: Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: Property response
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/helper.Response'
+      security:
+      - AuthBearer: []
+      summary: Get a Property
+      tags:
+      - Property
+  /v1/property/get/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Delete a Property
+      parameters:
+      - description: Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: response
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/helper.Response'
+      security:
+      - AuthBearer: []
+      summary: Delete a Property
+      tags:
+      - Property
+  /v1/property/update/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update a Property
+      parameters:
+      - description: Id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update a Property
+        in: body
+        name: Request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdatePropertyRequest'
+      responses:
+        "200":
+          description: Property response
+          schema:
+            allOf:
+            - $ref: '#/definitions/helper.Response'
+            - properties:
+                result:
+                  $ref: '#/definitions/dto.PropertyResponse'
+              type: object
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "404":
+          description: Not found
+          schema:
+            $ref: '#/definitions/helper.Response'
+      security:
+      - AuthBearer: []
+      summary: Update a Property
+      tags:
+      - Property
   /v1/users/login/phone:
     post:
       consumes:

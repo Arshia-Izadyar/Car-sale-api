@@ -37,11 +37,15 @@ func registerRoutes(r *gin.Engine, cfg *config.Config) {
 
 	v1 := api.Group("/v1")
 	{
+		// TODO: add auth
 		users := v1.Group("/users")
 		router.UserRouter(users, cfg)
 
 		propertyCategory := v1.Group("/property-category", middleware.Authentication(cfg))
 		router.PropertyCategoryRouter(propertyCategory, cfg)
+
+		property := v1.Group("/property", middleware.Authentication(cfg))
+		router.PropertyRouter(property, cfg)
 	}
 }
 
