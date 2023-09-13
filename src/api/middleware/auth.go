@@ -31,7 +31,7 @@ func Authentication(cfg *config.Config) gin.HandlerFunc {
 					if isServiceError && e.EndUserMessage == service_errors.TokenExpired {
 						ctx.AbortWithStatusJSON(http.StatusUnauthorized,
 							helper.GenerateBaseResponseWithError(
-								service_errors.TokenExpired,
+								nil,
 								false,
 								int(helper.AuthError),
 								service_errors.TokenExpired))
@@ -39,7 +39,7 @@ func Authentication(cfg *config.Config) gin.HandlerFunc {
 					} else {
 						ctx.AbortWithStatusJSON(http.StatusUnauthorized,
 							helper.GenerateBaseResponseWithError(
-								service_errors.TokenInvalid,
+								nil,
 								false,
 								int(helper.AuthError),
 								service_errors.TokenInvalid))

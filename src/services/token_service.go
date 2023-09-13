@@ -1,7 +1,6 @@
 package services
 
 import (
-	"errors"
 	"fmt"
 	"time"
 
@@ -64,29 +63,6 @@ func (ts *TokenService) GenerateToken(td *dto.TokenDTO) (*dto.TokenDetail, error
 	return tokenDetail, nil
 }
 
-func (ts *TokenService) ValidateToken(token string) (*jwt.Token, error) {
-	tk, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
-		_, ok := t.Method.(*jwt.SigningMethodHMAC)
-		if !ok {
-			return nil, &service_errors.ServiceError{EndUserMessage: service_errors.TokenInvalid}
-		}
-		return []byte(ts.Cfg.Jwt.Secret), nil
-	})
-	if err != nil {
-		return nil, err
-	}
-	if claims, ok := tk.Claims.(jwt.MapClaims); ok && tk.Valid {
-		expirationTime := time.Unix(int64(claims[constants.ExpKey].(float64)), 0)
-		currentTime := time.Now()
-
-		if currentTime.After(expirationTime) {
-			// Token has expired
-			return nil, &service_errors.ServiceError{EndUserMessage: service_errors.TokenExpired}
-		}
-	}
-	return tk, nil
-}
-
 func (ts *TokenService) GetClaims(token string) (map[string]interface{}, error) {
 	claimMap := make(map[string]interface{})
 	verifiedToken, err := ts.ValidateToken(token)
@@ -102,6 +78,32 @@ func (ts *TokenService) GetClaims(token string) (map[string]interface{}, error) 
 	}
 	return nil, &service_errors.ServiceError{EndUserMessage: service_errors.ClaimNotFound}
 }
+func (ts *TokenService) ValidateToken(token string) (*jwt.Token, error) {
+	tk, err := jwt.Parse(token, func(t *jwt.Token) (interface{}, error) {
+		_, ok := t.Method.(*jwt.SigningMethodHMAC)
+		if !ok {
+			return nil, &service_errors.ServiceError{EndUserMessage: service_errors.TokenInvalid}
+		}
+		return []byte(ts.Cfg.Jwt.Secret), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	isBlackList := isInBlackList(token)
+	if isBlackList {
+		return nil, &service_errors.ServiceError{EndUserMessage: service_errors.TokenInvalid}
+	}
+	if claims, ok := tk.Claims.(jwt.MapClaims); ok && tk.Valid {
+		expirationTime := time.Unix(int64(claims[constants.ExpKey].(float64)), 0)
+		currentTime := time.Now()
+
+		if currentTime.After(expirationTime) {
+			// Token has expired
+			return nil, &service_errors.ServiceError{EndUserMessage: service_errors.TokenExpired}
+		}
+	}
+	return tk, nil
+}
 
 func (ts *TokenService) ValidateRefreshToken(rToken string) (*dto.TokenDetail, error) {
 
@@ -113,25 +115,31 @@ func (ts *TokenService) ValidateRefreshToken(rToken string) (*dto.TokenDetail, e
 
 	// Check if the token is valid and not expired
 	if err != nil {
-		return nil, errors.New("the provided token is wrong")
+		return nil, &service_errors.ServiceError{EndUserMessage: service_errors.TokenInvalid}
 	}
 
 	isBlackList := isInBlackList(rToken)
 	if err != nil {
-		return nil, errors.New("internal error")
+		return nil, &service_errors.ServiceError{EndUserMessage: service_errors.InternalError}
 	}
 	claimMap := token.Claims.(jwt.MapClaims)
 	if _, ok := claimMap[constants.RefreshType]; !ok {
-		return nil, errors.New("provided token is not a refresh token")
+		return nil, &service_errors.ServiceError{EndUserMessage: service_errors.NotRefreshToken}
 	}
 	if !token.Valid || isBlackList {
-		return nil, fmt.Errorf("refresh token is not valid")
+		return nil, &service_errors.ServiceError{EndUserMessage: service_errors.TokenInvalid}
 	}
 
 	tokenExp := claimMap[constants.ExpKey]
-	expTime := float64(time.Now().Unix()) - tokenExp.(float64)
+	expTime := time.Unix(int64(tokenExp.(float64)), 0)
+	currentTime := time.Now()
 
-	addToBlackList(rToken, expTime)
+	if currentTime.After(expTime) {
+		// Token has expired
+		return nil, &service_errors.ServiceError{EndUserMessage: service_errors.TokenExpired}
+	}
+
+	AddToBlackList(rToken, ts.Cfg.Jwt.RefreshTokenExpireDuration*time.Minute)
 
 	db := db.GetDB()
 	user := models.User{}
@@ -160,9 +168,9 @@ func (ts *TokenService) ValidateRefreshToken(rToken string) (*dto.TokenDetail, e
 	return tk, nil
 }
 
-func addToBlackList(token string, expTime float64) error {
+func AddToBlackList(token string, expTime time.Duration) error {
 	rds := cache.GetRedis()
-	err := cache.Set(token, true, time.Duration(expTime), rds)
+	err := cache.Set(token, true, expTime, rds)
 	if err != nil {
 		return err
 	}

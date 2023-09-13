@@ -2,10 +2,13 @@ package handler
 
 import (
 	"net/http"
+	"strings"
+	"time"
 
 	"github.com/Arshia-Izadyar/Car-sale-api/src/api/dto"
 	"github.com/Arshia-Izadyar/Car-sale-api/src/api/helper"
 	"github.com/Arshia-Izadyar/Car-sale-api/src/config"
+	"github.com/Arshia-Izadyar/Car-sale-api/src/constants"
 	"github.com/Arshia-Izadyar/Car-sale-api/src/services"
 	"github.com/gin-gonic/gin"
 )
@@ -151,4 +154,15 @@ func (t *UserHandler) RefreshToken(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusCreated, helper.GenerateBaseResponse(res, int(helper.Success), true))
 
+}
+
+func (t *UserHandler) Logout(ctx *gin.Context) {
+	authToken := ctx.GetHeader(constants.AuthenTicationHeaderKey)
+	token := strings.Split(authToken, " ")[1]
+	err := services.AddToBlackList(token, t.service.Cfg.Jwt.AccessTokenExpireDuration*time.Minute)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, helper.GenerateBaseResponseWithError(nil, false, int(helper.InternalError), err.Error()))
+		return
+	}
+	ctx.JSON(http.StatusOK, helper.GenerateBaseResponse("logged out successfully", int(helper.Success), true))
 }

@@ -14,6 +14,8 @@ const (
 	TokenNotPresent = "no token provided"
 	TokenExpired    = "token is expired !"
 	TokenInvalid    = "provided token is invalid"
+	NotRefreshToken = "provided token is not a refresh token"
+	InternalError   = "some thing happened"
 
 	PermissionDenied = "Permission Denied"
 )
