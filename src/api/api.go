@@ -42,25 +42,42 @@ func registerRoutes(r *gin.Engine, cfg *config.Config) {
 		router.UserRouter(users, cfg)
 
 		propertyCategory := v1.Group("/property-category", middleware.Authentication(cfg))
-		router.PropertyCategoryRouter(propertyCategory, cfg)
-
-		year := v1.Group("/year", middleware.Authentication(cfg))
-		router.PersianYearRouter(year, cfg)
-
-		city := v1.Group("/city", middleware.Authentication(cfg))
-		router.CityRouter(city, cfg)
-
-		country := v1.Group("/country", middleware.Authentication(cfg))
-		router.CountryRouter(country, cfg)
-
-		color := v1.Group("/color", middleware.Authentication(cfg))
-		router.ColorRouter(color, cfg)
-
 		property := v1.Group("/property", middleware.Authentication(cfg))
-		router.PropertyRouter(property, cfg)
-
+		country := v1.Group("/country", middleware.Authentication(cfg))
+		city := v1.Group("/city", middleware.Authentication(cfg))
+		year := v1.Group("/year", middleware.Authentication(cfg))
+		color := v1.Group("/color", middleware.Authentication(cfg))
 		file := v1.Group("/file", middleware.Authentication(cfg))
+		gearbox := v1.Group("/gearbox", middleware.Authentication(cfg))
+		company := v1.Group("/company", middleware.Authentication(cfg))
+		carType := v1.Group("/car-type", middleware.Authentication(cfg))
+		carModel := v1.Group("/car-model", middleware.Authentication(cfg))
+		carPrice := v1.Group("/car-price", middleware.Authentication(cfg))
+		carYear := v1.Group("/car-year", middleware.Authentication(cfg))
+		carColor := v1.Group("/car-color", middleware.Authentication(cfg))
+		carFile := v1.Group("/car-file", middleware.Authentication(cfg))
+		carProperty := v1.Group("/car-property", middleware.Authentication(cfg))
+		carComment := v1.Group("/car-comment", middleware.Authentication(cfg))
+
+		router.PersianYearRouter(year, cfg)
+		router.CarTypeRouter(carType, cfg)
+		router.ColorRouter(color, cfg)
+		router.CompanyRouter(company, cfg)
 		router.FileRouter(file, cfg)
+		router.CityRouter(city, cfg)
+		router.PropertyCategoryRouter(propertyCategory, cfg)
+		router.CountryRouter(country, cfg)
+		router.PropertyRouter(property, cfg)
+		router.GearboxRouter(gearbox, cfg)
+		router.CarModelRouter(carModel, cfg)
+		router.CarModelYearRouter(carYear, cfg)
+		router.CarModelPriceRouter(carPrice, cfg)
+		router.CarModelColorRouter(carColor, cfg)
+		router.CarModelPropertyRouter(carProperty, cfg)
+		router.CarModelCommentRouter(carComment, cfg)
+		router.CarModelFileRouter(carFile, cfg)
+
+		r.Static("/static/", "../../uploads")
 	}
 }
 
