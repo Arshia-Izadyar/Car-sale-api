@@ -89,3 +89,31 @@ type FileResponse struct {
 	Description string `json:"description"`
 	MineType    string `json:"mineType"`
 }
+
+type CreateCompanyRequest struct {
+	Name      string `json:"name" binding:"max=15"`
+	CountryID int    `json:"countryId" binding:"required"`
+}
+
+type UpdateCompanyRequest struct {
+	Name string `json:"name" binding:"max=15"`
+}
+
+type CompanyResponse struct {
+	Id      int             `json:"id"`
+	Name    string          `json:"name"`
+	Country CountryResponse `json:"country,omitempty"`
+}
+
+type CreateGearboxRequest struct {
+	Name string `json:"name"`
+}
+
+type UpdateGearboxRequest struct {
+	Name string `json:"name"`
+}
+
+type GearboxResponse struct {
+	Id   int    `json:"id"`
+	Name string `json:"name"`
+}
