@@ -406,6 +406,11 @@ definitions:
       unit:
         type: string
     type: object
+  dto.RefreshToken:
+    properties:
+      refreshToken:
+        type: string
+    type: object
   dto.RegisterLoginByPhone:
     properties:
       otp:
@@ -2585,6 +2590,30 @@ paths:
           schema:
             $ref: '#/definitions/helper.Response'
       summary: LoginByUsername
+      tags:
+      - Users
+  /v1/users/refresh:
+    post:
+      consumes:
+      - application/json
+      description: RefreshToken
+      parameters:
+      - description: Create a RefreshToken
+        in: body
+        name: Request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RefreshToken'
+      responses:
+        "201":
+          description: RefreshToken response
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/helper.Response'
+      summary: RefreshToken
       tags:
       - Users
   /v1/users/register/phone:

@@ -1,11 +1,16 @@
 package services
 
 import (
+	"errors"
+	"fmt"
 	"time"
 
 	"github.com/Arshia-Izadyar/Car-sale-api/src/api/dto"
 	"github.com/Arshia-Izadyar/Car-sale-api/src/config"
 	"github.com/Arshia-Izadyar/Car-sale-api/src/constants"
+	"github.com/Arshia-Izadyar/Car-sale-api/src/data/cache"
+	"github.com/Arshia-Izadyar/Car-sale-api/src/data/db"
+	"github.com/Arshia-Izadyar/Car-sale-api/src/data/models"
 	"github.com/Arshia-Izadyar/Car-sale-api/src/pkg/logging"
 	"github.com/Arshia-Izadyar/Car-sale-api/src/pkg/service_errors"
 	"github.com/golang-jwt/jwt/v4"
@@ -36,6 +41,7 @@ func (ts *TokenService) GenerateToken(td *dto.TokenDTO) (*dto.TokenDetail, error
 	accessTokenClaims[constants.EmailKey] = td.Email
 	accessTokenClaims[constants.RolesKey] = td.Roles
 	accessTokenClaims[constants.ExpKey] = tokenDetail.AccessTokenExpireTime
+	accessTokenClaims[constants.AccessType] = true
 
 	tk := jwt.NewWithClaims(jwt.SigningMethodHS256, accessTokenClaims)
 	accessToken, err := tk.SignedString([]byte(ts.Cfg.Jwt.Secret))
@@ -47,6 +53,7 @@ func (ts *TokenService) GenerateToken(td *dto.TokenDTO) (*dto.TokenDetail, error
 	refreshTokenClaims := jwt.MapClaims{}
 	refreshTokenClaims[constants.UserIdKey] = td.UserId
 	refreshTokenClaims[constants.ExpKey] = tokenDetail.RefreshTokenExpireTime
+	refreshTokenClaims[constants.RefreshType] = true
 
 	rt := jwt.NewWithClaims(jwt.SigningMethodHS256, refreshTokenClaims)
 	refreshToken, err := rt.SignedString([]byte(ts.Cfg.Jwt.RefreshSecret))
@@ -94,4 +101,76 @@ func (ts *TokenService) GetClaims(token string) (map[string]interface{}, error) 
 		return claimMap, nil
 	}
 	return nil, &service_errors.ServiceError{EndUserMessage: service_errors.ClaimNotFound}
+}
+
+func (ts *TokenService) ValidateRefreshToken(rToken string) (*dto.TokenDetail, error) {
+
+	// Parse the refresh token
+	token, err := jwt.Parse(rToken, func(token *jwt.Token) (interface{}, error) {
+		// Provide the key used to sign the token here
+		return []byte(ts.Cfg.Jwt.Secret), nil
+	})
+
+	// Check if the token is valid and not expired
+	if err != nil {
+		return nil, errors.New("the provided token is wrong")
+	}
+
+	isBlackList := isInBlackList(rToken)
+	if err != nil {
+		return nil, errors.New("internal error")
+	}
+	claimMap := token.Claims.(jwt.MapClaims)
+	if _, ok := claimMap[constants.RefreshType]; !ok {
+		return nil, errors.New("provided token is not a refresh token")
+	}
+	if !token.Valid || isBlackList {
+		return nil, fmt.Errorf("refresh token is not valid")
+	}
+
+	tokenExp := claimMap[constants.ExpKey]
+	expTime := float64(time.Now().Unix()) - tokenExp.(float64)
+
+	addToBlackList(rToken, expTime)
+
+	db := db.GetDB()
+	user := models.User{}
+	err = db.Model(&models.User{}).Where("id = ?", claimMap[constants.UserIdKey]).First(&user).Error
+	if err != nil {
+		return nil, err
+	}
+
+	tDTO := &dto.TokenDTO{
+		UserId:   user.ID,
+		FullName: fmt.Sprintf("%s %s", user.FirstName, user.LastName.String),
+		Username: user.Username,
+		Phone:    user.PhoneNumber.String,
+		Email:    user.Email.String,
+	}
+	if len(user.UserRoles) > 0 {
+		for _, r := range user.UserRoles {
+			tDTO.Roles = append(tDTO.Roles, r.Role.Name)
+		}
+	}
+	tk, err := ts.GenerateToken(tDTO)
+	if err != nil {
+		return nil, err
+	}
+
+	return tk, nil
+}
+
+func addToBlackList(token string, expTime float64) error {
+	rds := cache.GetRedis()
+	err := cache.Set(token, true, time.Duration(expTime), rds)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func isInBlackList(token string) bool {
+	rds := cache.GetRedis()
+	_, err := cache.Get[bool](token, rds)
+	return err == nil
 }

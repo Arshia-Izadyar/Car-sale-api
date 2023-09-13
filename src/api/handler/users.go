@@ -125,3 +125,30 @@ func (us *UserHandler) LoginByUsername(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, helper.GenerateBaseResponse(res, int(helper.Success), true))
 
 }
+
+// RefreshToken godoc
+// @Summary RefreshToken
+// @Description RefreshToken
+// @Tags Users
+// @Accept json
+// @produces json
+// @Param Request body dto.RefreshToken true "Create a RefreshToken"
+// @Success 201 {object} helper.Response "RefreshToken response"
+// @Failure 400 {object} helper.Response "Bad request"
+// @Router /v1/users/refresh [post]
+func (t *UserHandler) RefreshToken(ctx *gin.Context) {
+	req := dto.RefreshToken{}
+	err := ctx.ShouldBindJSON(&req)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, helper.GenerateBaseResponseWithValidationError(nil, false, int(helper.ValidationError), err))
+		return
+	}
+	res, err := t.service.Token.ValidateRefreshToken(req.RefreshToken)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, helper.GenerateBaseResponseWithError(nil, false, int(helper.InternalError), err.Error()))
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, helper.GenerateBaseResponse(res, int(helper.Success), true))
+
+}

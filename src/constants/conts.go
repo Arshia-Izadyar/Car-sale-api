@@ -15,4 +15,6 @@ const (
 	EmailKey    = "Email"
 	RolesKey    = "Roles"
 	ExpKey      = "Exp"
+	AccessType  = "access_token"
+	RefreshType = "refresh_token"
 )
