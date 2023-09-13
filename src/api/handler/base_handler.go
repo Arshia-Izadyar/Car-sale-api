@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/Arshia-Izadyar/Car-sale-api/src/api/dto"
 	"github.com/Arshia-Izadyar/Car-sale-api/src/api/helper"
 	"github.com/gin-gonic/gin"
 )
@@ -28,6 +29,7 @@ func Get[To any](ctx *gin.Context, caller func(ctx context.Context, id int) (*To
 	id, _ := strconv.Atoi(ctx.Params.ByName("id"))
 	if id == 0 {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, helper.GenerateBaseResponseWithError(nil, false, int(helper.InternalError), "id value is not valid"))
+		return
 	}
 	res, err := caller(ctx, id)
 	if err != nil {
@@ -42,6 +44,7 @@ func Update[Ti, To any](ctx *gin.Context, caller func(ctx context.Context, req *
 	id, _ := strconv.Atoi(ctx.Params.ByName("id"))
 	if id == 0 {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, helper.GenerateBaseResponseWithError(nil, false, int(helper.InternalError), "id value is not valid"))
+		return
 	}
 	err := ctx.ShouldBindJSON(&req)
 	if err != nil {
@@ -60,6 +63,7 @@ func Delete(ctx *gin.Context, caller func(ctx context.Context, id int) error) {
 	id, _ := strconv.Atoi(ctx.Params.ByName("id"))
 	if id == 0 {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, helper.GenerateBaseResponseWithError(nil, false, int(helper.InternalError), "id value is not valid"))
+		return
 	}
 	err := caller(ctx, id)
 	if err != nil {
@@ -67,4 +71,18 @@ func Delete(ctx *gin.Context, caller func(ctx context.Context, id int) error) {
 		return
 	}
 	ctx.JSON(http.StatusNoContent, helper.GenerateBaseResponse(nil, int(helper.Success), true))
+}
+func GetByFilter[Ti, To any](ctx *gin.Context, caller func(ctx context.Context, req *Ti) (*dto.PageList[To], error)) {
+	req := new(Ti)
+	err := ctx.ShouldBindJSON(&req)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, helper.GenerateBaseResponseWithError(nil, false, int(helper.InternalError), err.Error()))
+		return
+	}
+	res, err := caller(ctx, req)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, helper.GenerateBaseResponseWithError(nil, false, int(helper.NotFoundError), err.Error()))
+		return
+	}
+	ctx.JSON(http.StatusOK, helper.GenerateBaseResponse(res, int(helper.Success), true))
 }

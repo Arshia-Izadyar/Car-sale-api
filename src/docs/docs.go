@@ -755,6 +755,48 @@ const docTemplate = `{
                 }
             }
         },
+        "/v1/car-model/filter": {
+            "post": {
+                "security": [
+                    {
+                        "AuthBearer": []
+                    }
+                ],
+                "description": "Get CarModel",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "CarModel"
+                ],
+                "summary": "Get CarModel",
+                "parameters": [
+                    {
+                        "description": "Request",
+                        "name": "Request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.PaginationInputWithFilter"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "City response",
+                        "schema": {
+                            "$ref": "#/definitions/helper.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.Response"
+                        }
+                    }
+                }
+            }
+        },
         "/v1/car-model/get/{id}": {
             "get": {
                 "security": [
@@ -3699,6 +3741,12 @@ const docTemplate = `{
                         "$ref": "#/definitions/dto.CarModelColorResponse"
                     }
                 },
+                "carModelComments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.CarModelCommentResponse"
+                    }
+                },
                 "carModelFiles": {
                     "type": "array",
                     "items": {
@@ -3841,6 +3889,10 @@ const docTemplate = `{
         },
         "dto.CreateCarModelCommentRequest": {
             "type": "object",
+            "required": [
+                "carModelId",
+                "message"
+            ],
             "properties": {
                 "carModelId": {
                     "type": "integer"
@@ -4080,6 +4132,23 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.Filter": {
+            "type": "object",
+            "properties": {
+                "filterType": {
+                    "type": "string"
+                },
+                "from": {
+                    "type": "string"
+                },
+                "to": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.GearboxResponse": {
             "type": "object",
             "properties": {
@@ -4118,6 +4187,29 @@ const docTemplate = `{
                 "username": {
                     "type": "string",
                     "minLength": 3
+                }
+            }
+        },
+        "dto.PaginationInputWithFilter": {
+            "type": "object",
+            "properties": {
+                "filter": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "$ref": "#/definitions/dto.Filter"
+                    }
+                },
+                "page_number": {
+                    "type": "integer"
+                },
+                "page_size": {
+                    "type": "integer"
+                },
+                "sort": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.SortDto"
+                    }
                 }
             }
         },
@@ -4218,6 +4310,17 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.SortDto": {
+            "type": "object",
+            "properties": {
+                "colId": {
+                    "type": "string"
+                },
+                "sort": {
                     "type": "string"
                 }
             }

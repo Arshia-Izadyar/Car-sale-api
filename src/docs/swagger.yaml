@@ -56,6 +56,10 @@ definitions:
         items:
           $ref: '#/definitions/dto.CarModelColorResponse'
         type: array
+      carModelComments:
+        items:
+          $ref: '#/definitions/dto.CarModelCommentResponse'
+        type: array
       carModelFiles:
         items:
           $ref: '#/definitions/dto.CarModelFileResponse'
@@ -155,6 +159,9 @@ definitions:
         type: string
       userId:
         type: integer
+    required:
+    - carModelId
+    - message
     type: object
   dto.CreateCarModelFileRequest:
     properties:
@@ -306,6 +313,17 @@ definitions:
       name:
         type: string
     type: object
+  dto.Filter:
+    properties:
+      filterType:
+        type: string
+      from:
+        type: string
+      to:
+        type: string
+      type:
+        type: string
+    type: object
   dto.GearboxResponse:
     properties:
       id:
@@ -333,6 +351,21 @@ definitions:
     required:
     - password
     - username
+    type: object
+  dto.PaginationInputWithFilter:
+    properties:
+      filter:
+        additionalProperties:
+          $ref: '#/definitions/dto.Filter'
+        type: object
+      page_number:
+        type: integer
+      page_size:
+        type: integer
+      sort:
+        items:
+          $ref: '#/definitions/dto.SortDto'
+        type: array
     type: object
   dto.PersianYearResponse:
     properties:
@@ -400,6 +433,13 @@ definitions:
     required:
     - first_name
     - username
+    type: object
+  dto.SortDto:
+    properties:
+      colId:
+        type: string
+      sort:
+        type: string
     type: object
   dto.UpdateCarModelColorRequest:
     properties:
@@ -983,6 +1023,32 @@ paths:
       security:
       - AuthBearer: []
       summary: Get a CarModel
+      tags:
+      - CarModel
+  /v1/car-model/filter:
+    post:
+      consumes:
+      - application/json
+      description: Get CarModel
+      parameters:
+      - description: Request
+        in: body
+        name: Request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.PaginationInputWithFilter'
+      responses:
+        "200":
+          description: City response
+          schema:
+            $ref: '#/definitions/helper.Response'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/helper.Response'
+      security:
+      - AuthBearer: []
+      summary: Get CarModel
       tags:
       - CarModel
   /v1/car-model/get/{id}:

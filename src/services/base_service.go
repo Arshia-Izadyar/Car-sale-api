@@ -4,8 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
+	"math"
+	"reflect"
+	"strings"
 	"time"
 
+	"github.com/Arshia-Izadyar/Car-sale-api/src/api/dto"
 	"github.com/Arshia-Izadyar/Car-sale-api/src/common"
 	"github.com/Arshia-Izadyar/Car-sale-api/src/config"
 	"github.com/Arshia-Izadyar/Car-sale-api/src/constants"
@@ -119,4 +124,121 @@ func (bs *BaseService[T, Tu, Tc, Tr]) Delete(ctx context.Context, id int) error 
 	}
 	tx.Commit()
 	return nil
+}
+
+func getQuery[T any](filter *dto.DynamicFilter) string {
+	t := new(T)
+	typeT := reflect.TypeOf(*t)
+	query := make([]string, 0)
+	query = append(query, "deleted_by is null")
+	if filter.Filter != nil {
+		for name, filter := range filter.Filter {
+			fld, ok := typeT.FieldByName(name)
+			if ok {
+				fld.Name = common.ToSnakeCase(fld.Name)
+				switch filter.Type {
+				case "contains":
+					query = append(query, fmt.Sprintf("%s ILike '%%%s%%'", fld.Name, filter.From))
+				case "notContains":
+					query = append(query, fmt.Sprintf("%s not ILike '%%%s%%'", fld.Name, filter.From))
+				case "startsWith":
+					query = append(query, fmt.Sprintf("%s ILike '%s%%'", fld.Name, filter.From))
+				case "endsWith":
+					query = append(query, fmt.Sprintf("%s ILike '%%%s'", fld.Name, filter.From))
+				case "equals":
+					query = append(query, fmt.Sprintf("%s = '%s'", fld.Name, filter.From))
+				case "notEquals":
+					query = append(query, fmt.Sprintf("%s != '%s'", fld.Name, filter.From))
+				case "lessThan":
+					query = append(query, fmt.Sprintf("%s < %s", fld.Name, filter.From))
+				case "lessThanOrEqual":
+					query = append(query, fmt.Sprintf("%s <= '%s'", fld.Name, filter.From))
+				case "greaterThan":
+					query = append(query, fmt.Sprintf("%s > '%s'", fld.Name, filter.From))
+				case "greaterThanOrEqual":
+					query = append(query, fmt.Sprintf("%s >= %s", fld.Name, filter.From))
+				case "inRange":
+					if fld.Type.Kind() == reflect.String {
+						query = append(query, fmt.Sprintf("%s >= '%s'", fld.Name, filter.From))
+						query = append(query, fmt.Sprintf("%s <= '%s'", fld.Name, filter.To))
+					} else {
+						query = append(query, fmt.Sprintf("%s >= %s", fld.Name, filter.From))
+						query = append(query, fmt.Sprintf("%s <= %s", fld.Name, filter.To))
+					}
+
+				}
+			}
+		}
+	}
+	return strings.Join(query, " AND ")
+}
+func getSort[T any](filter *dto.DynamicFilter) string {
+	t := new(T)
+	typeT := reflect.TypeOf(*t)
+	sort := make([]string, 0)
+	if filter.Sort != nil {
+		for _, tp := range *filter.Sort {
+			fld, ok := typeT.FieldByName(tp.ColId)
+			if ok && (tp.Sort == "asc" || tp.Sort == "desc") {
+				fld.Name = common.ToSnakeCase(fld.Name)
+				sort = append(sort, fmt.Sprintf("%s %s", fld.Name, tp.Sort))
+			}
+		}
+	}
+	return strings.Join(sort, ", ")
+}
+
+func NewPageList[T any](items *[]T, count int64, pageNumber int, pageSize int64) *dto.PageList[T] {
+	pl := &dto.PageList[T]{
+		PageNumber: pageNumber,
+		TotalRows:  count,
+		Items:      items,
+	}
+	pl.TotalPages = int(math.Ceil(float64(count) / float64(pageSize)))
+	pl.HasNextPage = pl.PageNumber < pl.TotalPages
+	pl.HasPervious = pl.PageNumber > 1
+	return pl
+
+}
+
+func Paginate[T any, Tr any](pagination *dto.PaginationInputWithFilter, preloads []Preload, db *gorm.DB) (*dto.PageList[Tr], error) {
+	model := new(T)
+	var items *[]T
+	var rItems *[]Tr
+	db = GetPreload(db, preloads)
+	query := getQuery[T](&pagination.DynamicFilter)
+	sort := getSort[T](&pagination.DynamicFilter)
+
+	var totalRows int64 = 0
+
+	err := db.
+		Model(model).
+		Where(query).
+		Count(&totalRows).
+		Error
+
+	if err != nil {
+		return nil, err
+	}
+	err = db.
+		Where(query).
+		Offset(pagination.GetOffSet()).
+		Limit(pagination.GetPageSize()).
+		Order(sort).
+		Find(&items).
+		Error
+
+	if err != nil {
+		return nil, err
+	}
+	rItems, err = common.TypeConvert[[]Tr](items)
+	if err != nil {
+		return nil, err
+	}
+	return NewPageList(rItems, totalRows, pagination.PageNumber, int64(pagination.PageSize)), err
+}
+
+func (s *BaseService[T, Tc, Tu, Tr]) GetByFilter(ctx context.Context, req *dto.PaginationInputWithFilter) (*dto.PageList[Tr], error) {
+	return Paginate[T, Tr](req, s.Preloads, s.Db)
+
 }

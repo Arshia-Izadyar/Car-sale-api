@@ -81,3 +81,18 @@ func (pch *CarModelHandler) UpdateCarModel(ctx *gin.Context) {
 func (pch *CarModelHandler) DeleteCarModel(ctx *gin.Context) {
 	Delete(ctx, pch.service.Delete)
 }
+
+// CarModel godoc
+// @Summary Get CarModel
+// @Description Get CarModel
+// @Tags CarModel
+// @Accept json
+// @produces json
+// @Param Request body dto.PaginationInputWithFilter true "Request"
+// @Success 200 {object} helper.Response "City response"
+// @Failure 400 {object} helper.Response "Bad request"
+// @Router /v1/car-model/filter [post]
+// @Security AuthBearer
+func (pch *CarModelHandler) GetByFilter(ctx *gin.Context) {
+	GetByFilter[dto.PaginationInputWithFilter, dto.CarModelResponse](ctx, pch.service.GetByFilter)
+}

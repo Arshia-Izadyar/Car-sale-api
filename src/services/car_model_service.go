@@ -49,3 +49,7 @@ func (p *CarModelService) Create(ctx context.Context, req *dto.CreateCarModelReq
 func (p *CarModelService) Delete(ctx context.Context, id int) error {
 	return p.base.Delete(ctx, id)
 }
+
+func (p *CarModelService) GetByFilter(ctx context.Context, req *dto.PaginationInputWithFilter) (*dto.PageList[dto.CarModelResponse], error) {
+	return p.base.GetByFilter(ctx, req)
+}

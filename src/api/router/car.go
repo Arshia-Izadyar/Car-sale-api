@@ -36,6 +36,7 @@ func CarModelRouter(r *gin.RouterGroup, cfg *config.Config) {
 	r.GET("/get/:id", h.GetCarModel)
 	r.PUT("/update/:id", h.UpdateCarModel)
 	r.DELETE("/delete/:id", h.DeleteCarModel)
+	r.POST("/filter", h.GetByFilter)
 }
 
 func CarModelPriceRouter(r *gin.RouterGroup, cfg *config.Config) {
