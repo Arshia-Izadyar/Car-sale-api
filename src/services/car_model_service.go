@@ -23,6 +23,12 @@ func NewCarModelService(cfg *config.Config) *CarModelService {
 				{Name: "Company.Country"},
 				{Name: "CarType"},
 				{Name: "Gearbox"},
+				{Name: "CarModelYears.PersianYear"},
+				{Name: "CarModelYears.CarModelPrice"},
+				{Name: "CarModelColors"},
+				{Name: "CarModelFiles.File"},
+				{Name: "CarModelProperties.Property.Category"},
+				{Name: "CarModelComments.User"},
 			},
 		},
 	}
