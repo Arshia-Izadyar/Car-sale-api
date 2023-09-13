@@ -34,7 +34,7 @@ func Get[To any](ctx *gin.Context, caller func(ctx context.Context, id int) (*To
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, helper.GenerateBaseResponseWithError(nil, false, int(helper.InternalError), err.Error()))
 		return
 	}
-	ctx.JSON(http.StatusCreated, helper.GenerateBaseResponse(res, int(helper.Success), true))
+	ctx.JSON(http.StatusOK, helper.GenerateBaseResponse(res, int(helper.Success), true))
 }
 
 func Update[Ti, To any](ctx *gin.Context, caller func(ctx context.Context, req *Ti, id int) (*To, error)) {
