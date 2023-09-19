@@ -1,7 +1,7 @@
 # Car-sale-api
 this is a web-API for a car salling system (Bama.ir clone) with golang
 
-### Project Summery
+## Project Summery
 I used Docker foy services like Redis, Postgres, Elastic, Kibana and more
 
 all endpoins are documented with swagger
@@ -21,8 +21,12 @@ it is visible at localhost:4000/swagger/index.html
 
         cd src/cmd/ && go run main.go
 
+> A Database migration will execute to add some primary data like admin User and some temp data will be add to postgres as soon as you run the project
 
-#### Config
+
+
+## 
+### Config
 
 All project settings/configs are written in **.yml** files so nothong is hard coded
 
@@ -31,8 +35,9 @@ first i fetch the the project ENV called "APP_ENV" project environment includes 
 i used Viper to load all the configs and covert them into proper Structs
 
 every change to project config is as easy as editing a config.yml file
+## 
 
-#### Users
+### Users
 Users can login/logout/Sinup in two ways
 
 First Users can Use **PhoneNumber and OTP**
@@ -45,8 +50,9 @@ Second users can Create account or login with username and password
 - To create account users should send Username, Password and information like Firstname, lastname, email, ...
 - Login with username is available too
 - users send username/password to login and recive JWT
+## 
 
-#### JWT
+### JWT
 JWT tokens will be generated every time a user login
 
 users can use refresh tokens to get new access tokens and refresh token
@@ -54,17 +60,23 @@ users can use refresh tokens to get new access tokens and refresh token
 every refresh token can be used once 
 
 if users logout i store the token in Redis blacklist with TTL of expire time of the token
+## 
 
-#### Middlewares
+### Middlewares
 - CORS middleware
 - Limiter middleware is added so users can't send more than 2 requests per second (i store users ip)
 - OTP Limiter so users request 1 otp every 120 seconds with one IP
 - Logger request endpoint requst bodySize and ... are logged so you can see and access them in kibana and elastic
 - Auth this middleware checks for jwt Token in header and prevent unauthorized users to use api
-#### Validation
+## 
+
+### Validation
 - password validation is used
 - phone nu,ber validation will chaeck that only Iraninan ohoneNumbers can use the service
-#### Logging
+
+## 
+
+### Logging
 i implemented a **Logger interface** so changing the logger wont be so hard
 
 **ZapLogger** and **ZeroLogger** is used in project
@@ -74,8 +86,9 @@ default logger is ZapLogger but you can change the logger in cfg Files
 logs will be saved under src/logs/logs.go
 
 then Using **ELK** stack they are availble in elastic so you can filter them and sort logs
+## 
 
-#### Handlers and views
+### Handlers and views
 i used a GinEngin for routing the api
 
 business logic is implemented in services files
@@ -96,8 +109,9 @@ Users can get a car-model that comtains information like:
 users can add comments to cars
 
 every car has a galary of images 
+## 
 
-#### Response 
+### Response 
 
 the api response is unified so every request will return the same JSON format
 
@@ -105,6 +119,7 @@ the api response is unified so every request will return the same JSON format
 - GenerateBaseResponse
 - GenerateBaseResponseWithError
 - GenerateBaseResponseWithValidationError
+## 
 
 ##### filtering
 
@@ -129,8 +144,9 @@ users can **paginate/filter/Sort** the responses
   ]
 }
 ```
+## 
 
-#### part of the endpoints in swagger 
+### part of the endpoints in swagger 
 **total 70 different endpoints**
 ![image](https://github.com/Arshia-Izadyar/Car-sale-api/assets/110552657/62a7d150-ef6f-4362-95c4-bbad5b6ec157)
 
